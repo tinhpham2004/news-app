@@ -29,14 +29,14 @@ import com.loc.newsapp.presentaion.Dimens.ExtraSmallPaddig
 import com.loc.newsapp.presentaion.Dimens.MediumPadding1
 
 fun Modifier.shimmerEffect() = composed {
-    val transition = rememberInfiniteTransition()
+    val transition = rememberInfiniteTransition(label = "")
     val alpa = transition.animateFloat(
         initialValue = 0.2f,
         targetValue = 0.8f,
         animationSpec = infiniteRepeatable(
             animation = tween(1000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
-        )
+        ), label = ""
     ).value
     background(
         color = colorResource(id = R.color.shimmer).copy(alpa),
