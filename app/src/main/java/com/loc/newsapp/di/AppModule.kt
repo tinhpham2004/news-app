@@ -2,6 +2,7 @@ package com.loc.newsapp.di
 
 import android.app.Application
 import androidx.room.Room
+import com.loc.newsapp.data.local.NewsDao
 import com.loc.newsapp.data.local.NewsDatabase
 import com.loc.newsapp.data.local.NewsTypeConvertor
 import com.loc.newsapp.data.manager.LocalUserManagerImpl
@@ -12,9 +13,13 @@ import com.loc.newsapp.domain.repository.NewsRepository
 import com.loc.newsapp.domain.usecases.app_entry.AppEntryUseCases
 import com.loc.newsapp.domain.usecases.app_entry.ReadAppEntry
 import com.loc.newsapp.domain.usecases.app_entry.SaveAppEntry
+import com.loc.newsapp.domain.usecases.news.DeleteArticle
 import com.loc.newsapp.domain.usecases.news.GetNews
 import com.loc.newsapp.domain.usecases.news.NewsUseCases
 import com.loc.newsapp.domain.usecases.news.SearchNews
+import com.loc.newsapp.domain.usecases.news.SelectArticle
+import com.loc.newsapp.domain.usecases.news.SelectArticles
+import com.loc.newsapp.domain.usecases.news.UpsertArticle
 import com.loc.newsapp.util.Constants.BASE_URL
 import com.loc.newsapp.util.Constants.NEWS_DATABASE_NAME
 import dagger.Module
@@ -54,16 +59,24 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideNewsRepository(newsApi: NewsApi): NewsRepository = NewsRepositoryImpl(newsApi)
+    fun provideNewsRepository(
+        newsApi: NewsApi,
+        newsDao: NewsDao
+    ): NewsRepository = NewsRepositoryImpl(newsApi, newsDao)
 
     @Provides
     @Singleton
     fun provideNewsUseCases(
-        newsRepository: NewsRepository
+        newsRepository: NewsRepository,
+        newsDao: NewsDao,
     ): NewsUseCases {
         return NewsUseCases(
             getNews = GetNews(newsRepository),
-            searchNews = SearchNews(newsRepository)
+            searchNews = SearchNews(newsRepository),
+            selectArticles = SelectArticles(newsRepository),
+            upsertArticle = UpsertArticle(newsRepository),
+            deleteArticle = DeleteArticle(newsRepository),
+            selectArticle = SelectArticle(newsRepository)
         )
     }
 
@@ -85,5 +98,5 @@ object AppModule {
     @Singleton
     fun provideNewsDao(
         newsDatabase: NewsDatabase
-    ) = newsDatabase.newsDao
+    ): NewsDao = newsDatabase.newsDao
 }
